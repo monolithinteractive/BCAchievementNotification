@@ -21,6 +21,7 @@
 @interface BCAchievementHandler : NSObject <BCAchievementHandlerDelegate>
 {
     UIView         *_topView;  /**< Reference to top view of UIApplication. */
+	UIView		   *_containerView;
     NSMutableArray *_queue;    /**< Queue of achievement notifiers to display. */
     UIImage        *_image;    /**< Logo to display in notifications. */
 }
@@ -33,6 +34,11 @@
  * @return a single BCAchievementHandler.
  */
 + (BCAchievementHandler *)defaultHandler;
+
+/**
+ * Returns a rect that's been properly adjusted for device orientation
+ */
++ (CGRect)containerRect;
 
 /**
  * Show an achievement notification with an actual achievement.

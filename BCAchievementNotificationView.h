@@ -14,8 +14,8 @@
 #define kBCAchievementDisplayTime   1.75f
 
 #define kBCAchievementDefaultSize   CGRectMake(0.0f, 0.0f, 284.0f, 52.0f);
-#define kBCAchievementFrameStart    CGRectMake(18.0f, -53.0f, 284.0f, 52.0f);
-#define kBCAchievementFrameEnd      CGRectMake(18.0f, 10.0f, 284.0f, 52.0f);
+//#define kBCAchievementFrameStart    CGRectMake(18.0f, -53.0f, 284.0f, 52.0f);
+//#define kBCAchievementFrameEnd      CGRectMake(18.0f, 10.0f, 284.0f, 52.0f);
 
 #define kBCAchievementText1         CGRectMake(10.0, 6.0f, 264.0f, 22.0f);
 #define kBCAchievementText2         CGRectMake(10.0, 20.0f, 264.0f, 22.0f);
@@ -65,10 +65,10 @@
  */
 @interface BCAchievementNotificationView : UIView
 {
-    GKAchievementDescription  *achievement;  /**< Description of achievement earned. */
+    GKAchievementDescription  *achievementDescription;  /**< Description of achievement earned. */
 
-    NSString *message;  /**< Optional custom achievement message. */
-    NSString *title;    /**< Optional custom achievement title. */
+//    NSString *message;  /**< Optional custom achievement message. */
+//    NSString *title;    /**< Optional custom achievement title. */
 
     UIView  *backgroundView;  /**< Stretchable background view. */
     UIImageView  *iconView;        /**< Logo that is displayed on the left. */
@@ -77,14 +77,16 @@
     UILabel      *detailLabel;  /**< Text label used to display achievement description. */
 
     id<BCAchievementHandlerDelegate> handlerDelegate;  /**< Reference to nofification handler. */
+	
+	UIViewContentMode displayMode; // where to display the view: corners, top, or bottom. default: top
 }
 
 /** Description of achievement earned. */
-@property (nonatomic, retain) GKAchievementDescription *achievement;
-/** Optional custom achievement message. */
-@property (nonatomic, retain) NSString *message;
-/** Optional custom achievement title. */
-@property (nonatomic, retain) NSString *title;
+@property (nonatomic, retain) GKAchievementDescription *achievementDescription;
+///** Optional custom achievement message. */
+//@property (nonatomic, retain) NSString *message;
+///** Optional custom achievement title. */
+//@property (nonatomic, retain) NSString *title;
 /** Stretchable background view. */
 @property (nonatomic, retain) UIView *backgroundView;
 /** Logo that is displayed on the left. */
@@ -95,6 +97,8 @@
 @property (nonatomic, retain) UILabel *detailLabel;
 /** Reference to nofification handler. */
 @property (nonatomic, retain) id<BCAchievementHandlerDelegate> handlerDelegate;
+
+@property (nonatomic, assign) UIViewContentMode displayMode;
 
 #pragma mark -
 
@@ -112,6 +116,9 @@
  * @return a BCAchievementNoficiation view.
  */
 - (id)initWithTitle:(NSString *)title andMessage:(NSString *)message;
+
+- (CGRect)startFrame;
+- (CGRect)endFrame;
 
 /**
  * Show the notification.
