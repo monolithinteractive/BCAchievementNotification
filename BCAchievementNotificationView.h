@@ -1,5 +1,5 @@
 //
-//  GKAchievementNotification.h
+//  BCAchievementNotificationView.h
 //
 //  Created by Benjamin Borowski on 9/30/10.
 //  Copyright 2010 Typeoneerror Studios. All rights reserved.
@@ -8,19 +8,19 @@
 
 #import <UIKit/UIKit.h>
 
-@class GKAchievementNotification;
+@class BCAchievementNotificationView;
 
-#define kGKAchievementAnimeTime     0.4f
-#define kGKAchievementDisplayTime   1.75f
+#define kBCAchievementAnimeTime     0.4f
+#define kBCAchievementDisplayTime   1.75f
 
-#define kGKAchievementDefaultSize   CGRectMake(0.0f, 0.0f, 284.0f, 52.0f);
-#define kGKAchievementFrameStart    CGRectMake(18.0f, -53.0f, 284.0f, 52.0f);
-#define kGKAchievementFrameEnd      CGRectMake(18.0f, 10.0f, 284.0f, 52.0f);
+#define kBCAchievementDefaultSize   CGRectMake(0.0f, 0.0f, 284.0f, 52.0f);
+#define kBCAchievementFrameStart    CGRectMake(18.0f, -53.0f, 284.0f, 52.0f);
+#define kBCAchievementFrameEnd      CGRectMake(18.0f, 10.0f, 284.0f, 52.0f);
 
-#define kGKAchievementText1         CGRectMake(10.0, 6.0f, 264.0f, 22.0f);
-#define kGKAchievementText2         CGRectMake(10.0, 20.0f, 264.0f, 22.0f);
-#define kGKAchievementText1WLogo    CGRectMake(45.0, 6.0f, 229.0f, 22.0f);
-#define kGKAchievementText2WLogo    CGRectMake(45.0, 20.0f, 229.0f, 22.0f);
+#define kBCAchievementText1         CGRectMake(10.0, 6.0f, 264.0f, 22.0f);
+#define kBCAchievementText2         CGRectMake(10.0, 20.0f, 264.0f, 22.0f);
+#define kBCAchievementText1WLogo    CGRectMake(45.0, 6.0f, 229.0f, 22.0f);
+#define kBCAchievementText2WLogo    CGRectMake(45.0, 20.0f, 229.0f, 22.0f);
 
 #pragma mark -
 
@@ -28,7 +28,7 @@
  * The handler delegate responds to hiding and showing
  * of the game center notifications.
  */
-@protocol GKAchievementHandlerDelegate <NSObject>
+@protocol BCAchievementHandlerDelegate <NSObject>
 
 @optional
 
@@ -36,47 +36,47 @@
  * Called on delegate when notification is hidden.
  * @param nofification  The notification view that was hidden.
  */
-- (void)didHideAchievementNotification:(GKAchievementNotification *)notification;
+- (void)didHideAchievementNotification:(BCAchievementNotificationView *)notification;
 
 /**
  * Called on delegate when notification is shown.
  * @param nofification  The notification view that was shown.
  */
-- (void)didShowAchievementNotification:(GKAchievementNotification *)notification;
+- (void)didShowAchievementNotification:(BCAchievementNotificationView *)notification;
 
 /**
  * Called on delegate when notification is about to be hidden.
  * @param nofification  The notification view that will be hidden.
  */
-- (void)willHideAchievementNotification:(GKAchievementNotification *)notification;
+- (void)willHideAchievementNotification:(BCAchievementNotificationView *)notification;
 
 /**
  * Called on delegate when notification is about to be shown.
  * @param nofification  The notification view that will be shown.
  */
-- (void)willShowAchievementNotification:(GKAchievementNotification *)notification;
+- (void)willShowAchievementNotification:(BCAchievementNotificationView *)notification;
 
 @end
 
 #pragma mark -
 
 /**
- * The GKAchievementNotification is a view for showing the achievement earned.
+ * The BCAchievementNotificationView is a view for showing the achievement earned.
  */
-@interface GKAchievementNotification : UIView
+@interface BCAchievementNotificationView : UIView
 {
-    GKAchievementDescription  *_achievement;  /**< Description of achievement earned. */
+    GKAchievementDescription  *achievement;  /**< Description of achievement earned. */
 
-    NSString *_message;  /**< Optional custom achievement message. */
-    NSString *_title;    /**< Optional custom achievement title. */
+    NSString *message;  /**< Optional custom achievement message. */
+    NSString *title;    /**< Optional custom achievement title. */
 
-    UIImageView  *_background;  /**< Stretchable background view. */
-    UIImageView  *_logo;        /**< Logo that is displayed on the left. */
+    UIView  *backgroundView;  /**< Stretchable background view. */
+    UIImageView  *iconView;        /**< Logo that is displayed on the left. */
 
-    UILabel      *_textLabel;    /**< Text label used to display achievement title. */
-    UILabel      *_detailLabel;  /**< Text label used to display achievement description. */
+    UILabel      *textLabel;    /**< Text label used to display achievement title. */
+    UILabel      *detailLabel;  /**< Text label used to display achievement description. */
 
-    id<GKAchievementHandlerDelegate> _handlerDelegate;  /**< Reference to nofification handler. */
+    id<BCAchievementHandlerDelegate> handlerDelegate;  /**< Reference to nofification handler. */
 }
 
 /** Description of achievement earned. */
@@ -86,22 +86,22 @@
 /** Optional custom achievement title. */
 @property (nonatomic, retain) NSString *title;
 /** Stretchable background view. */
-@property (nonatomic, retain) UIImageView *background;
+@property (nonatomic, retain) UIView *backgroundView;
 /** Logo that is displayed on the left. */
-@property (nonatomic, retain) UIImageView *logo;
+@property (nonatomic, retain) UIImageView *iconView;
 /** Text label used to display achievement title. */
 @property (nonatomic, retain) UILabel *textLabel;
 /** Text label used to display achievement description. */
 @property (nonatomic, retain) UILabel *detailLabel;
 /** Reference to nofification handler. */
-@property (nonatomic, retain) id<GKAchievementHandlerDelegate> handlerDelegate;
+@property (nonatomic, retain) id<BCAchievementHandlerDelegate> handlerDelegate;
 
 #pragma mark -
 
 /**
  * Create a notification with an achievement description.
  * @param achievement  Achievement description to notify user of earning.
- * @return a GKAchievementNoficiation view.
+ * @return a BCAchievementNoficiation view.
  */
 - (id)initWithAchievementDescription:(GKAchievementDescription *)achievement;
 
@@ -109,7 +109,7 @@
  * Create a notification with a custom title and description.
  * @param title    Title to display in notification.
  * @param message  Descriotion to display in notification.
- * @return a GKAchievementNoficiation view.
+ * @return a BCAchievementNoficiation view.
  */
 - (id)initWithTitle:(NSString *)title andMessage:(NSString *)message;
 

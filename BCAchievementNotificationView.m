@@ -1,5 +1,5 @@
 //
-//  GKAchievementNotification.m
+//  BCAchievementNotificationView.m
 //
 //  Created by Benjamin Borowski on 9/30/10.
 //  Copyright 2010 Typeoneerror Studios. All rights reserved.
@@ -7,11 +7,11 @@
 //
 
 #import <GameKit/GameKit.h>
-#import "GKAchievementNotification.h"
+#import "BCAchievementNotificationView.h"
 
 #pragma mark -
 
-@interface GKAchievementNotification(private)
+@interface BCAchievementNotificationView(private)
 
 - (void)animationInDidStop:(NSString *)animationID finished:(NSNumber *)finished context:(void *)context;
 - (void)animationOutDidStop:(NSString *)animationID finished:(NSNumber *)finished context:(void *)context;
@@ -21,12 +21,12 @@
 
 #pragma mark -
 
-@implementation GKAchievementNotification(private)
+@implementation BCAchievementNotificationView(private)
 
 - (void)animationInDidStop:(NSString *)animationID finished:(NSNumber *)finished context:(void *)context
 {
     [self delegateCallback:@selector(didShowAchievementNotification:) withObject:self];
-    [self performSelector:@selector(animateOut) withObject:nil afterDelay:kGKAchievementDisplayTime];
+    [self performSelector:@selector(animateOut) withObject:nil afterDelay:kBCAchievementDisplayTime];
 }
 
 - (void)animationOutDidStop:(NSString *)animationID finished:(NSNumber *)finished context:(void *)context
@@ -50,34 +50,34 @@
 
 #pragma mark -
 
-@implementation GKAchievementNotification
+@implementation BCAchievementNotificationView
 
-@synthesize achievement=_achievement;
-@synthesize background=_background;
-@synthesize handlerDelegate=_handlerDelegate;
-@synthesize detailLabel=_detailLabel;
-@synthesize logo=_logo;
-@synthesize message=_message;
-@synthesize title=_title;
-@synthesize textLabel=_textLabel;
+@synthesize achievement;
+@synthesize backgroundView;
+@synthesize handlerDelegate;
+@synthesize detailLabel;
+@synthesize iconView;
+@synthesize message;
+@synthesize title;
+@synthesize textLabel;
 
 #pragma mark -
 
-- (id)initWithAchievementDescription:(GKAchievementDescription *)achievement
+- (id)initWithAchievementDescription:(GKAchievementDescription *)anAchievement
 {
-    CGRect frame = kGKAchievementDefaultSize;
-    self.achievement = achievement;
+    CGRect frame = kBCAchievementDefaultSize;
+    self.achievement = anAchievement;
     if (self = [self initWithFrame:frame])
     {
     }
     return self;
 }
 
-- (id)initWithTitle:(NSString *)title andMessage:(NSString *)message
+- (id)initWithTitle:(NSString *)aTitle andMessage:(NSString *)aMessage
 {
-    CGRect frame = kGKAchievementDefaultSize;
-    self.title = title;
-    self.message = message;
+    CGRect frame = kBCAchievementDefaultSize;
+    self.title = aTitle;
+    self.message = aMessage;
     if (self = [self initWithFrame:frame])
     {
     }
@@ -93,13 +93,13 @@
         UIImageView *tBackground = [[UIImageView alloc] initWithFrame:frame];
         tBackground.autoresizingMask = UIViewAutoresizingFlexibleWidth;
         tBackground.image = backgroundStretch;
-        self.background = tBackground;
+        self.backgroundView = tBackground;
         self.opaque = NO;
         [tBackground release];
-        [self addSubview:self.background];
+        [self addSubview:self.backgroundView];
 
-        CGRect r1 = kGKAchievementText1;
-        CGRect r2 = kGKAchievementText2;
+        CGRect r1 = kBCAchievementText1;
+        CGRect r2 = kBCAchievementText2;
 
         // create the text label
         UILabel *tTextLabel = [[UILabel alloc] initWithFrame:r1];
@@ -147,18 +147,16 @@
 
 - (void)dealloc
 {
-    NSLog(@"dealloc: GKAchievementNotification");
-    
     self.handlerDelegate = nil;
-    self.logo = nil;
+    self.iconView = nil;
     
-    [_achievement release];
-    [_background release];
-    [_detailLabel release];
-    [_logo release];
-    [_message release];
-    [_textLabel release];
-    [_title release];
+    [achievement release];
+    [backgroundView release];
+    [detailLabel release];
+    [iconView release];
+    [message release];
+    [textLabel release];
+    [title release];
     
     [super dealloc];
 }
@@ -170,11 +168,11 @@
 {
     [self delegateCallback:@selector(willShowAchievementNotification:) withObject:self];
     [UIView beginAnimations:nil context:NULL];
-    [UIView setAnimationDuration:kGKAchievementAnimeTime];
+    [UIView setAnimationDuration:kBCAchievementAnimeTime];
     [UIView setAnimationDelegate:self];
     [UIView setAnimationBeginsFromCurrentState:YES];
     [UIView setAnimationDidStopSelector:@selector(animationInDidStop:finished:context:)];
-    self.frame = kGKAchievementFrameEnd;
+    self.frame = kBCAchievementFrameEnd;
     [UIView commitAnimations];
 }
 
@@ -182,11 +180,11 @@
 {
     [self delegateCallback:@selector(willHideAchievementNotification:) withObject:self];
     [UIView beginAnimations:nil context:NULL];
-    [UIView setAnimationDuration:kGKAchievementAnimeTime];
+    [UIView setAnimationDuration:kBCAchievementAnimeTime];
     [UIView setAnimationDelegate:self];
     [UIView setAnimationBeginsFromCurrentState:YES];
     [UIView setAnimationDidStopSelector:@selector(animationOutDidStop:finished:context:)];
-    self.frame = kGKAchievementFrameStart;
+    self.frame = kBCAchievementFrameStart;
     [UIView commitAnimations];
 }
 
@@ -194,26 +192,26 @@
 {
     if (image)
     {
-        if (!self.logo)
+        if (!self.iconView)
         {
             UIImageView *tLogo = [[UIImageView alloc] initWithFrame:CGRectMake(7.0f, 6.0f, 34.0f, 34.0f)];
             tLogo.contentMode = UIViewContentModeCenter;
-            self.logo = tLogo;
+            self.iconView = tLogo;
             [tLogo release];
-            [self addSubview:self.logo];
+            [self addSubview:self.iconView];
         }
-        self.logo.image = image;
-        self.textLabel.frame = kGKAchievementText1WLogo;
-        self.detailLabel.frame = kGKAchievementText2WLogo;
+        self.iconView.image = image;
+        self.textLabel.frame = kBCAchievementText1WLogo;
+        self.detailLabel.frame = kBCAchievementText2WLogo;
     }
     else
     {
-        if (self.logo)
+        if (self.iconView)
         {
-            [self.logo removeFromSuperview];
+            [self.iconView removeFromSuperview];
         }
-        self.textLabel.frame = kGKAchievementText1;
-        self.detailLabel.frame = kGKAchievementText2;
+        self.textLabel.frame = kBCAchievementText1;
+        self.detailLabel.frame = kBCAchievementText2;
     }
 }
 

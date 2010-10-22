@@ -1,5 +1,5 @@
 //
-//  GKAchievementHandler.m
+//  BCAchievementHandler.m
 //
 //  Created by Benjamin Borowski on 9/30/10.
 //  Copyright 2010 Typeoneerror Studios. All rights reserved.
@@ -7,24 +7,24 @@
 //
 
 #import <GameKit/GameKit.h>
-#import "GKAchievementHandler.h"
-#import "GKAchievementNotification.h"
+#import "BCAchievementHandler.h"
+#import "BCAchievementNotificationView.h"
 
-static GKAchievementHandler *defaultHandler = nil;
+static BCAchievementHandler *defaultHandler = nil;
 
 #pragma mark -
 
-@interface GKAchievementHandler(private)
+@interface BCAchievementHandler(private)
 
-- (void)displayNotification:(GKAchievementNotification *)notification;
+- (void)displayNotification:(BCAchievementNotificationView *)notification;
 
 @end
 
 #pragma mark -
 
-@implementation GKAchievementHandler(private)
+@implementation BCAchievementHandler(private)
 
-- (void)displayNotification:(GKAchievementNotification *)notification
+- (void)displayNotification:(BCAchievementNotificationView *)notification
 {
     if (self.image != nil)
     {
@@ -43,13 +43,13 @@ static GKAchievementHandler *defaultHandler = nil;
 
 #pragma mark -
 
-@implementation GKAchievementHandler
+@implementation BCAchievementHandler
 
 @synthesize image=_image;
 
 #pragma mark -
 
-+ (GKAchievementHandler *)defaultHandler
++ (BCAchievementHandler *)defaultHandler
 {
     if (!defaultHandler) defaultHandler = [[self alloc] init];
     return defaultHandler;
@@ -78,8 +78,8 @@ static GKAchievementHandler *defaultHandler = nil;
 
 - (void)notifyAchievement:(GKAchievementDescription *)achievement
 {
-    GKAchievementNotification *notification = [[[GKAchievementNotification alloc] initWithAchievementDescription:achievement] autorelease];
-    notification.frame = kGKAchievementFrameStart;
+    BCAchievementNotificationView *notification = [[[BCAchievementNotificationView alloc] initWithAchievementDescription:achievement] autorelease];
+    notification.frame = kBCAchievementFrameStart;
     notification.handlerDelegate = self;
 
     [_queue addObject:notification];
@@ -91,8 +91,8 @@ static GKAchievementHandler *defaultHandler = nil;
 
 - (void)notifyAchievementTitle:(NSString *)title andMessage:(NSString *)message
 {
-    GKAchievementNotification *notification = [[[GKAchievementNotification alloc] initWithTitle:title andMessage:message] autorelease];
-    notification.frame = kGKAchievementFrameStart;
+    BCAchievementNotificationView *notification = [[[BCAchievementNotificationView alloc] initWithTitle:title andMessage:message] autorelease];
+    notification.frame = kBCAchievementFrameStart;
     notification.handlerDelegate = self;
 
     [_queue addObject:notification];
@@ -103,14 +103,14 @@ static GKAchievementHandler *defaultHandler = nil;
 }
 
 #pragma mark -
-#pragma mark GKAchievementHandlerDelegate implementation
+#pragma mark BCAchievementHandlerDelegate implementation
 
-- (void)didHideAchievementNotification:(GKAchievementNotification *)notification
+- (void)didHideAchievementNotification:(BCAchievementNotificationView *)notification
 {
     [_queue removeObjectAtIndex:0];
     if ([_queue count])
     {
-        [self displayNotification:(GKAchievementNotification *)[_queue objectAtIndex:0]];
+        [self displayNotification:(BCAchievementNotificationView *)[_queue objectAtIndex:0]];
     }
 }
 
