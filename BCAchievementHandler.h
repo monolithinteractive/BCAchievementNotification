@@ -23,11 +23,16 @@
     UIView         *_topView;  /**< Reference to top view of UIApplication. */
 	UIView		   *_containerView;
     NSMutableArray *_queue;    /**< Queue of achievement notifiers to display. */
-    UIImage        *_image;    /**< Logo to display in notifications. */
+    UIImage        *image;    /**< Logo to display in notifications. */
+	UIViewContentMode viewDisplayMode; /**< Where on screen views will show up, top, top left, top right, etc. Default UIViewContentModeTop */
 }
 
 /** Logo to display in notifications. */
 @property (nonatomic, retain) UIImage *image;
+/**
+ * View content mode value to control where the views will show on the screen, defaults to top 
+ */
+@property (nonatomic, assign) UIViewContentMode viewDisplayMode;
 
 /**
  * Returns a reference to the singleton BCAchievementHandler.

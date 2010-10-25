@@ -137,7 +137,8 @@ static BCAchievementHandler *defaultHandler = nil;
 
 @implementation BCAchievementHandler
 
-@synthesize image=_image;
+@synthesize image;
+@synthesize viewDisplayMode;
 
 #pragma mark -
 
@@ -152,6 +153,7 @@ static BCAchievementHandler *defaultHandler = nil;
 	if ((self = [super init]))
 	{
 		_topView = [[UIApplication sharedApplication] keyWindow];
+		self.viewDisplayMode = UIViewContentModeTop;
 		
 		_containerView = [[UIView alloc] initWithFrame:[[UIScreen mainScreen] applicationFrame]];
 		_containerView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
@@ -176,7 +178,7 @@ static BCAchievementHandler *defaultHandler = nil;
 {
 	[_containerView release];
     [_queue release];
-    [_image release];
+    [image release];
     [super dealloc];
 }
 
@@ -203,6 +205,7 @@ static BCAchievementHandler *defaultHandler = nil;
 - (void)notifyAchievement:(GKAchievementDescription *)achievement
 {
     BCAchievementNotificationView *notification = [[[BCAchievementNotificationView alloc] initWithAchievementDescription:achievement] autorelease];
+	notification.displayMode = self.viewDisplayMode;
     notification.frame = [notification startFrame];
     notification.handlerDelegate = self;
 
@@ -216,6 +219,7 @@ static BCAchievementHandler *defaultHandler = nil;
 - (void)notifyAchievementTitle:(NSString *)title andMessage:(NSString *)message
 {
     BCAchievementNotificationView *notification = [[[BCAchievementNotificationView alloc] initWithTitle:title andMessage:message] autorelease];
+	notification.displayMode = self.viewDisplayMode;
     notification.frame = [notification startFrame];
     notification.handlerDelegate = self;
 

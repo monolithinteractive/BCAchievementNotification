@@ -10,6 +10,8 @@
 #import "BCAchievementNotificationView.h"
 #import "BCAchievementHandler.h"
 
+#define kBCAchievementViewPadding 10.0f
+
 #pragma mark -
 
 @interface BCAchievementNotificationView(private)
@@ -228,12 +230,33 @@
 		case UIViewContentModeTop:
 		case UIViewContentModeTopLeft:
 		case UIViewContentModeTopRight:
-			result.origin.y -= (self.frame.size.height + 10);
+			result.origin.y -= (self.frame.size.height + kBCAchievementViewPadding);
 			break;
 		case UIViewContentModeBottom:
 		case UIViewContentModeBottomLeft:
 		case UIViewContentModeBottomRight:
-			result.origin.y += (self.frame.size.height * 2 + 10);
+			result.origin.y += (self.frame.size.height + kBCAchievementViewPadding);
+			break;
+		case UIViewContentModeLeft:
+			result.origin.x -= self.frame.size.width;
+			break;
+		case UIViewContentModeRight:
+			result.origin.x += self.frame.size.width;
+			break;
+		default:
+			break;
+	}
+	// adjust for horizontal padding
+	switch (self.displayMode) {
+		case UIViewContentModeTopLeft:
+		case UIViewContentModeBottomLeft:
+		case UIViewContentModeLeft:
+			result.origin.x += kBCAchievementViewPadding;
+			break;
+		case UIViewContentModeTopRight:
+		case UIViewContentModeBottomRight:
+		case UIViewContentModeRight:
+			result.origin.x -= kBCAchievementViewPadding;
 			break;
 		default:
 			break;
@@ -251,12 +274,27 @@
 		case UIViewContentModeTop:
 		case UIViewContentModeTopLeft:
 		case UIViewContentModeTopRight:
-			result.origin.y += 10; // padding from top of screen
+			result.origin.y += kBCAchievementViewPadding; // padding from top of screen
 			break;
 		case UIViewContentModeBottom:
 		case UIViewContentModeBottomLeft:
 		case UIViewContentModeBottomRight:
-			result.origin.y -= (self.frame.size.height + 10);
+			result.origin.y -= kBCAchievementViewPadding;
+			break;
+		default:
+			break;
+	}
+	// adjust for horizontal padding
+	switch (self.displayMode) {
+		case UIViewContentModeTopLeft:
+		case UIViewContentModeBottomLeft:
+		case UIViewContentModeLeft:
+			result.origin.x += kBCAchievementViewPadding;
+			break;
+		case UIViewContentModeTopRight:
+		case UIViewContentModeBottomRight:
+		case UIViewContentModeRight:
+			result.origin.x -= kBCAchievementViewPadding;
 			break;
 		default:
 			break;
