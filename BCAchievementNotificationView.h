@@ -7,8 +7,8 @@
 //
 
 #import <UIKit/UIKit.h>
-
-@class BCAchievementNotificationView;
+//#import "BCAchievementHandler.h"
+#import "BCAchievementViewProtocol.h"
 
 //#define kBCAchievementAnimeTime     0.4f
 //#define kBCAchievementDisplayTime   1.75f
@@ -27,7 +27,7 @@
 /**
  * The BCAchievementNotificationView is a view for showing the achievement earned.
  */
-@interface BCAchievementNotificationView : UIView
+@interface BCAchievementNotificationView : UIView<BCAchievementViewProtocol>
 {
     GKAchievementDescription  *achievementDescription;  /**< Description of achievement earned. */
 

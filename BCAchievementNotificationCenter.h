@@ -1,5 +1,5 @@
 //
-//  BCAchievementHandler.h
+//  BCAchievementNotificationCenter.h
 //
 //  Created by Benjamin Borowski on 9/30/10.
 //  Copyright 2010 Typeoneerror Studios. All rights reserved.
@@ -7,7 +7,8 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "BCAchievementNotificationView.h"
+#import "BCAchievementViewProtocol.h"
+
 
 /**
  * Game Center has a notification window that slides down and informs the GKLocalPlayer 
@@ -18,7 +19,7 @@
  * The BCAchievementHandler is a singleton pattern that you can use to 
  * notify the user anywhere in your application that they earned an achievement.
  */
-@interface BCAchievementHandler : NSObject
+@interface BCAchievementNotificationCenter : NSObject
 {
     UIView         *_topView;  /**< Reference to top view of UIApplication. */
 	UIView		   *_containerView;
@@ -27,6 +28,8 @@
 	UIViewContentMode viewDisplayMode; /**< Where on screen views will show up, top, top left, top right, etc. Default UIViewContentModeTop */
 	CGSize		   defaultViewSize;
 	UIImage		   *defaultBackgroundImage;
+	
+	Class		   viewClass;
 }
 
 /** Logo to display in notifications. */
@@ -41,11 +44,13 @@
  */
 @property (nonatomic, assign) CGSize defaultViewSize;
 
+@property (nonatomic, assign) Class viewClass;
+
 /**
  * Returns a reference to the singleton BCAchievementHandler.
  * @return a single BCAchievementHandler.
  */
-+ (BCAchievementHandler *)defaultHandler;
++ (BCAchievementNotificationCenter *)defaultCenter;
 
 /**
  * Returns a rect that's been properly adjusted for device orientation
@@ -56,19 +61,19 @@
  * Queues a manually created notificatoin view for display. Immediately displays if queue is empty
  * @param notification A BCAchievementNotificationView configured and ready for display
  */
-- (void)queueNotification:(BCAchievementNotificationView *)notification;
+- (void)queueNotification:(UIView<BCAchievementViewProtocol> *)notification;
 
 /**
  * Show an achievement notification with an actual achievement.
  * @param achievement  Achievement description object to notify user of.
  */
-- (void)notifyAchievement:(GKAchievementDescription *)achievement;
+- (void)notifyWithAchievementDescription:(GKAchievementDescription *)achievement;
 
 /**
  * Show an achievement notification with a message manually added.
  * @param title    The title of the achievement.
  * @param message  Description of the achievement.
  */
-- (void)notifyAchievementTitle:(NSString *)title andMessage:(NSString *)message;
+- (void)notifyWithTitle:(NSString *)title message:(NSString *)message;
 
 @end

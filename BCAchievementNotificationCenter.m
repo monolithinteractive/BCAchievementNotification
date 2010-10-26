@@ -7,7 +7,7 @@
 //
 
 #import <GameKit/GameKit.h>
-#import "BCAchievementHandler.h"
+#import "BCAchievementNotificationCenter.h"
 #import "BCAchievementNotificationView.h"
 
 #define kBCAchievementDefaultSize   CGSizeMake(284.0f, 52.0f)
@@ -15,13 +15,13 @@
 #define kBCAchievementAnimeTime     0.4f
 #define kBCAchievementDisplayTime   1.75f
 
-static BCAchievementHandler *defaultHandler = nil;
+static BCAchievementNotificationCenter *defaultHandler = nil;
 
 #pragma mark -
 
-@interface BCAchievementHandler(private)
+@interface BCAchievementNotificationCenter(private)
 
-- (void)displayNotification:(BCAchievementNotificationView *)notification;
+- (void)displayNotification:(UIView<BCAchievementViewProtocol> *)notification;
 - (void)orientationChanged:(NSNotification *)notification;
 - (CGRect)startFrameForFrame:(CGRect)aFrame;
 - (CGRect)endFrameForFrame:(CGRect)aFrame;
@@ -30,9 +30,9 @@ static BCAchievementHandler *defaultHandler = nil;
 
 #pragma mark -
 
-@implementation BCAchievementHandler(private)
+@implementation BCAchievementNotificationCenter(private)
 
-- (void)displayNotification:(BCAchievementNotificationView *)notification
+- (void)displayNotification:(UIView<BCAchievementViewProtocol> *)notification
 {
 	if(![_containerView superview])
 	{
@@ -115,7 +115,7 @@ static BCAchievementHandler *defaultHandler = nil;
 - (CGRect)startFrameForFrame:(CGRect)aFrame
 {
 	CGRect result = aFrame;
-	CGRect containerRect = [BCAchievementHandler containerRect];
+	CGRect containerRect = [BCAchievementNotificationCenter containerRect];
 	result = [self rectForRect:result withinRect:containerRect withMode:self.viewDisplayMode];
 	switch (self.viewDisplayMode) {
 		case UIViewContentModeTop:
@@ -159,7 +159,7 @@ static BCAchievementHandler *defaultHandler = nil;
 - (CGRect)endFrameForFrame:(CGRect)aFrame
 {
 	CGRect result = aFrame;
-	CGRect containerRect = [BCAchievementHandler containerRect];
+	CGRect containerRect = [BCAchievementNotificationCenter containerRect];
 	result = [self rectForRect:result withinRect:containerRect withMode:self.viewDisplayMode];
 	switch (self.viewDisplayMode) {
 		case UIViewContentModeTop:
@@ -283,16 +283,17 @@ static BCAchievementHandler *defaultHandler = nil;
 
 #pragma mark -
 
-@implementation BCAchievementHandler
+@implementation BCAchievementNotificationCenter
 
 @synthesize image;
 @synthesize defaultBackgroundImage;
 @synthesize viewDisplayMode;
 @synthesize defaultViewSize;
+@synthesize viewClass;
 
 #pragma mark -
 
-+ (BCAchievementHandler *)defaultHandler
++ (BCAchievementNotificationCenter *)defaultCenter
 {
     if (!defaultHandler) defaultHandler = [[self alloc] init];
     return defaultHandler;
@@ -305,6 +306,7 @@ static BCAchievementHandler *defaultHandler = nil;
 		_topView = [[UIApplication sharedApplication] keyWindow];
 		self.viewDisplayMode = UIViewContentModeTop;
 		self.defaultViewSize = kBCAchievementDefaultSize;
+		self.viewClass = [BCAchievementNotificationView class];
 		
 		_containerView = [[UIView alloc] initWithFrame:[[UIScreen mainScreen] applicationFrame]];
 		_containerView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
@@ -361,22 +363,22 @@ static BCAchievementHandler *defaultHandler = nil;
 		[self displayNotification:notification];
 }
 
-- (void)notifyAchievement:(GKAchievementDescription *)achievement
+- (void)notifyWithAchievementDescription:(GKAchievementDescription *)achievement
 {
 	CGRect frame = CGRectMake(0, 0, self.defaultViewSize.width, self.defaultViewSize.height);
-    BCAchievementNotificationView *notification = [[[BCAchievementNotificationView alloc] initWithFrame:frame achievementDescription:achievement] autorelease];
-	((UIImageView *)notification.backgroundView).image = self.defaultBackgroundImage;
+    UIView<BCAchievementViewProtocol> *notification = [[[viewClass alloc] initWithFrame:frame achievementDescription:achievement] autorelease];
+	((UIImageView *)[notification backgroundView]).image = self.defaultBackgroundImage;
 //	notification.displayMode = self.viewDisplayMode;
 	//[notification resetFrameToStart];
 
 	[self queueNotification:notification];
 }
 
-- (void)notifyAchievementTitle:(NSString *)title andMessage:(NSString *)message
+- (void)notifyWithTitle:(NSString *)title message:(NSString *)message
 {
 	CGRect frame = CGRectMake(0, 0, self.defaultViewSize.width, self.defaultViewSize.height);
-    BCAchievementNotificationView *notification = [[[BCAchievementNotificationView alloc] initWithFrame:frame title:title message:message] autorelease];
-	((UIImageView *)notification.backgroundView).image = self.defaultBackgroundImage;
+    UIView<BCAchievementViewProtocol> *notification = [[[viewClass alloc] initWithFrame:frame title:title message:message] autorelease];
+	((UIImageView *)[notification backgroundView]).image = self.defaultBackgroundImage;
 	if (self.image != nil)
     {
         [notification setImage:self.image];

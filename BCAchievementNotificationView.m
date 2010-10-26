@@ -8,7 +8,7 @@
 
 #import <GameKit/GameKit.h>
 #import "BCAchievementNotificationView.h"
-#import "BCAchievementHandler.h"
+//#import "BCAchievementNotificationCenter.h"
 
 @implementation BCAchievementNotificationView
 
