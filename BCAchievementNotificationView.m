@@ -124,7 +124,7 @@
         if (!self.iconView)
         {
             iconView = [[UIImageView alloc] initWithFrame:CGRectMake(7.0f, 6.0f, 34.0f, 34.0f)];
-            iconView.contentMode = UIViewContentModeCenter;
+            iconView.contentMode = UIViewContentModeScaleAspectFit;
             [self addSubview:self.iconView];
         }
         self.iconView.image = image;
