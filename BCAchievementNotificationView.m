@@ -10,81 +10,33 @@
 #import "BCAchievementNotificationView.h"
 #import "BCAchievementHandler.h"
 
-#define kBCAchievementViewPadding 10.0f
-
-#pragma mark -
-
-@interface BCAchievementNotificationView(private)
-
-- (void)animationInDidStop:(NSString *)animationID finished:(NSNumber *)finished context:(void *)context;
-- (void)animationOutDidStop:(NSString *)animationID finished:(NSNumber *)finished context:(void *)context;
-- (void)delegateCallback:(SEL)selector withObject:(id)object;
-
-@end
-
-#pragma mark -
-
-@implementation BCAchievementNotificationView(private)
-
-- (void)animationInDidStop:(NSString *)animationID finished:(NSNumber *)finished context:(void *)context
-{
-    [self delegateCallback:@selector(didShowAchievementNotification:) withObject:self];
-    [self performSelector:@selector(animateOut) withObject:nil afterDelay:kBCAchievementDisplayTime];
-}
-
-- (void)animationOutDidStop:(NSString *)animationID finished:(NSNumber *)finished context:(void *)context
-{
-    [self delegateCallback:@selector(didHideAchievementNotification:) withObject:self];
-    [self removeFromSuperview];
-}
-
-- (void)delegateCallback:(SEL)selector withObject:(id)object
-{
-    if (self.handlerDelegate)
-    {
-        if ([self.handlerDelegate respondsToSelector:selector])
-        {
-            [self.handlerDelegate performSelector:selector withObject:object];
-        }
-    }
-}
-
-@end
-
-#pragma mark -
-
 @implementation BCAchievementNotificationView
 
 @synthesize achievementDescription;
 @synthesize backgroundView;
-@synthesize handlerDelegate;
+//@synthesize handlerDelegate;
 @synthesize detailLabel;
 @synthesize iconView;
 //@synthesize message;
 //@synthesize title;
 @synthesize textLabel;
-@synthesize displayMode;
+//@synthesize displayMode;
 
 #pragma mark -
 
-- (id)initWithAchievementDescription:(GKAchievementDescription *)anAchievement
+- (id)initWithFrame:(CGRect)aFrame achievementDescription:(GKAchievementDescription *)anAchievement
 {
-	CGRect defaultFrame = kBCAchievementDefaultSize;
-	
-	if (self = [self initWithFrame:defaultFrame])
+	if (self = [self initWithFrame:aFrame])
 	{
+		// setter defined below to populate subviews with info
 		self.achievementDescription = anAchievement;
-		self.textLabel.text = self.achievementDescription.title;
-		self.detailLabel.text = self.achievementDescription.achievedDescription;
-		self.iconView.image = self.achievementDescription.image;
 	}
 	return self;
 }
 
-- (id)initWithTitle:(NSString *)aTitle andMessage:(NSString *)aMessage
+- (id)initWithFrame:(CGRect)aFrame title:(NSString *)aTitle message:(NSString *)aMessage
 {
-    CGRect defaultFrame = kBCAchievementDefaultSize;
-    if (self = [self initWithFrame:defaultFrame])
+    if (self = [self initWithFrame:aFrame])
     {
 		self.textLabel.text = aTitle;
 		self.detailLabel.text = aMessage;
@@ -96,13 +48,13 @@
 {
     if ((self = [super initWithFrame:aFrame]))
     {
-		self.displayMode = UIViewContentModeTop;
+//		self.displayMode = UIViewContentModeTop;
 		
         // create the GK background
-        UIImage *backgroundStretch = [[UIImage imageNamed:@"gk-notification.png"] stretchableImageWithLeftCapWidth:8.0f topCapHeight:0.0f];
+        //UIImage *backgroundStretch = [[UIImage imageNamed:@"gk-notification.png"] stretchableImageWithLeftCapWidth:8.0f topCapHeight:0.0f];
         UIImageView *tBackground = [[UIImageView alloc] initWithFrame:aFrame];
         tBackground.autoresizingMask = UIViewAutoresizingFlexibleWidth;
-        tBackground.image = backgroundStretch;
+        //tBackground.image = backgroundStretch;
         self.backgroundView = tBackground;
         self.opaque = NO;
         [tBackground release];
@@ -112,42 +64,21 @@
         CGRect r2 = kBCAchievementText2;
 
         // create the text label
-        UILabel *tTextLabel = [[UILabel alloc] initWithFrame:r1];
-        tTextLabel.textAlignment = UITextAlignmentCenter;
-        tTextLabel.backgroundColor = [UIColor clearColor];
-        tTextLabel.textColor = [UIColor whiteColor];
-        tTextLabel.font = [UIFont fontWithName:@"HelveticaNeue-Bold" size:15.0f];
-        tTextLabel.text = NSLocalizedString(@"Achievement Unlocked", @"Achievemnt Unlocked Message");
-        self.textLabel = tTextLabel;
-        [tTextLabel release];
+		textLabel = [[UILabel alloc] initWithFrame:r1];
+        textLabel.textAlignment = UITextAlignmentCenter;
+        textLabel.backgroundColor = [UIColor clearColor];
+        textLabel.textColor = [UIColor whiteColor];
+        textLabel.font = [UIFont fontWithName:@"HelveticaNeue-Bold" size:15.0f];
+        textLabel.text = NSLocalizedString(@"Achievement Unlocked", @"Achievemnt Unlocked Message");
 
         // detail label
-        UILabel *tDetailLabel = [[UILabel alloc] initWithFrame:r2];
-        tDetailLabel.textAlignment = UITextAlignmentCenter;
-        tDetailLabel.adjustsFontSizeToFitWidth = YES;
-        tDetailLabel.minimumFontSize = 10.0f;
-        tDetailLabel.backgroundColor = [UIColor clearColor];
-        tDetailLabel.textColor = [UIColor whiteColor];
-        tDetailLabel.font = [UIFont fontWithName:@"HelveticaNeue" size:11.0f];
-        self.detailLabel = tDetailLabel;
-        [tDetailLabel release];
-
-//        if (self.achievementDescription)
-//        {
-//            self.textLabel.text = self.achievement.title;
-//            self.detailLabel.text = self.achievement.achievedDescription;
-//        }
-//        else
-//        {
-//            if (self.title)
-//            {
-//                self.textLabel.text = self.title;
-//            }
-//            if (self.message)
-//            {
-//                self.detailLabel.text = self.message;
-//            }
-//        }
+        detailLabel = [[UILabel alloc] initWithFrame:r2];
+        detailLabel.textAlignment = UITextAlignmentCenter;
+        detailLabel.adjustsFontSizeToFitWidth = YES;
+        detailLabel.minimumFontSize = 10.0f;
+        detailLabel.backgroundColor = [UIColor clearColor];
+        detailLabel.textColor = [UIColor whiteColor];
+        detailLabel.font = [UIFont fontWithName:@"HelveticaNeue" size:11.0f];
 
         [self addSubview:self.textLabel];
         [self addSubview:self.detailLabel];
@@ -157,8 +88,7 @@
 
 - (void)dealloc
 {
-    self.handlerDelegate = nil;
-    self.iconView = nil;
+	[iconView release];
     
     [achievementDescription release];
     [backgroundView release];
@@ -171,160 +101,21 @@
     [super dealloc];
 }
 
-#pragma mark -
-
-- (CGRect)rectForRect:(CGRect)rect withinRect:(CGRect)bigRect withMode:(UIViewContentMode)mode
+- (void)setAchievementDescription:(GKAchievementDescription *)description
 {
-	CGRect result = rect;
-	switch (mode)
+	[description retain];
+	[achievementDescription release];
+	achievementDescription = description;
+	
+	self.textLabel.text = self.achievementDescription.title;
+	self.detailLabel.text = self.achievementDescription.achievedDescription;
+	if(self.achievementDescription.image)
 	{
-		case UIViewContentModeCenter:
-			result.origin.x = CGRectGetMidX(bigRect) - (rect.size.width / 2);
-			result.origin.y = CGRectGetMidY(bigRect) - (rect.size.height / 2);
-			break;
-		case UIViewContentModeBottom:
-			result.origin.x = CGRectGetMidX(bigRect) - (rect.size.width / 2);
-			result.origin.y = CGRectGetMaxY(bigRect) - (rect.size.height);
-			break;
-		case UIViewContentModeBottomLeft:			
-			result.origin.x = CGRectGetMinX(bigRect);
-			result.origin.y = CGRectGetMaxY(bigRect) - rect.size.height;
-			break;
-		case UIViewContentModeBottomRight:
-			result.origin.x = CGRectGetMaxX(bigRect) - rect.size.width;
-			result.origin.y = CGRectGetMaxY(bigRect) - rect.size.height;
-			break;
-		case UIViewContentModeLeft:
-			result.origin.x = CGRectGetMinX(bigRect);
-			result.origin.y = CGRectGetMidY(bigRect) - (rect.size.height / 2);
-			break;
-		case UIViewContentModeTop:
-			result.origin.x = CGRectGetMidX(bigRect) - (rect.size.width / 2);
-			result.origin.y = CGRectGetMinY(bigRect);
-			break;
-		case UIViewContentModeTopLeft:
-			result.origin.x = CGRectGetMinX(bigRect);
-			result.origin.y = CGRectGetMinY(bigRect);
-			break;
-		case UIViewContentModeTopRight:
-			result.origin.x = CGRectGetMaxX(bigRect) - rect.size.width;
-			result.origin.y = CGRectGetMinY(bigRect);
-			break;
-		case UIViewContentModeRight:
-			result.origin.x = CGRectGetMaxX(bigRect) - rect.size.width;
-			result.origin.y = CGRectGetMidY(bigRect) - (rect.size.height / 2);
-			break;
-		default:
-			break;
+		[self setImage:self.achievementDescription.image];
 	}
-	return result;
 }
 
-// off screen
-- (CGRect)startFrame
-{
-	CGRect result = self.frame;
-	CGRect containerRect = [BCAchievementHandler containerRect];
-	result = [self rectForRect:result withinRect:containerRect withMode:self.displayMode];
-	switch (self.displayMode) {
-		case UIViewContentModeTop:
-		case UIViewContentModeTopLeft:
-		case UIViewContentModeTopRight:
-			result.origin.y -= (self.frame.size.height + kBCAchievementViewPadding);
-			break;
-		case UIViewContentModeBottom:
-		case UIViewContentModeBottomLeft:
-		case UIViewContentModeBottomRight:
-			result.origin.y += (self.frame.size.height + kBCAchievementViewPadding);
-			break;
-		case UIViewContentModeLeft:
-			result.origin.x -= self.frame.size.width;
-			break;
-		case UIViewContentModeRight:
-			result.origin.x += self.frame.size.width;
-			break;
-		default:
-			break;
-	}
-	// adjust for horizontal padding
-	switch (self.displayMode) {
-		case UIViewContentModeTopLeft:
-		case UIViewContentModeBottomLeft:
-		case UIViewContentModeLeft:
-			result.origin.x += kBCAchievementViewPadding;
-			break;
-		case UIViewContentModeTopRight:
-		case UIViewContentModeBottomRight:
-		case UIViewContentModeRight:
-			result.origin.x -= kBCAchievementViewPadding;
-			break;
-		default:
-			break;
-	}
-	return result;
-}
-
-// on screen
-- (CGRect)endFrame
-{
-	CGRect result = self.frame;
-	CGRect containerRect = [BCAchievementHandler containerRect];
-	result = [self rectForRect:result withinRect:containerRect withMode:self.displayMode];
-	switch (self.displayMode) {
-		case UIViewContentModeTop:
-		case UIViewContentModeTopLeft:
-		case UIViewContentModeTopRight:
-			result.origin.y += kBCAchievementViewPadding; // padding from top of screen
-			break;
-		case UIViewContentModeBottom:
-		case UIViewContentModeBottomLeft:
-		case UIViewContentModeBottomRight:
-			result.origin.y -= kBCAchievementViewPadding;
-			break;
-		default:
-			break;
-	}
-	// adjust for horizontal padding
-	switch (self.displayMode) {
-		case UIViewContentModeTopLeft:
-		case UIViewContentModeBottomLeft:
-		case UIViewContentModeLeft:
-			result.origin.x += kBCAchievementViewPadding;
-			break;
-		case UIViewContentModeTopRight:
-		case UIViewContentModeBottomRight:
-		case UIViewContentModeRight:
-			result.origin.x -= kBCAchievementViewPadding;
-			break;
-		default:
-			break;
-	}
-	return result;
-}
-
-- (void)animateIn
-{
-    [self delegateCallback:@selector(willShowAchievementNotification:) withObject:self];
-    [UIView beginAnimations:nil context:NULL];
-    [UIView setAnimationDuration:kBCAchievementAnimeTime];
-    [UIView setAnimationDelegate:self];
-    [UIView setAnimationBeginsFromCurrentState:YES];
-    [UIView setAnimationDidStopSelector:@selector(animationInDidStop:finished:context:)];
-    self.frame = [self endFrame];
-    [UIView commitAnimations];
-}
-
-- (void)animateOut
-{
-    [self delegateCallback:@selector(willHideAchievementNotification:) withObject:self];
-    [UIView beginAnimations:nil context:NULL];
-    [UIView setAnimationDuration:kBCAchievementAnimeTime];
-    [UIView setAnimationDelegate:self];
-    [UIView setAnimationBeginsFromCurrentState:YES];
-    [UIView setAnimationDidStopSelector:@selector(animationOutDidStop:finished:context:)];
-    self.frame = [self startFrame];
-    [UIView commitAnimations];
-}
+#pragma mark -
 
 - (void)setImage:(UIImage *)image
 {
@@ -332,10 +123,8 @@
     {
         if (!self.iconView)
         {
-            UIImageView *tLogo = [[UIImageView alloc] initWithFrame:CGRectMake(7.0f, 6.0f, 34.0f, 34.0f)];
-            tLogo.contentMode = UIViewContentModeCenter;
-            self.iconView = tLogo;
-            [tLogo release];
+            iconView = [[UIImageView alloc] initWithFrame:CGRectMake(7.0f, 6.0f, 34.0f, 34.0f)];
+            iconView.contentMode = UIViewContentModeCenter;
             [self addSubview:self.iconView];
         }
         self.iconView.image = image;

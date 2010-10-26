@@ -10,6 +10,11 @@
 #import "BCAchievementHandler.h"
 #import "BCAchievementNotificationView.h"
 
+#define kBCAchievementDefaultSize   CGSizeMake(284.0f, 52.0f)
+#define kBCAchievementViewPadding 10.0f
+#define kBCAchievementAnimeTime     0.4f
+#define kBCAchievementDisplayTime   1.75f
+
 static BCAchievementHandler *defaultHandler = nil;
 
 #pragma mark -
@@ -18,6 +23,8 @@ static BCAchievementHandler *defaultHandler = nil;
 
 - (void)displayNotification:(BCAchievementNotificationView *)notification;
 - (void)orientationChanged:(NSNotification *)notification;
+- (CGRect)startFrameForFrame:(CGRect)aFrame;
+- (CGRect)endFrameForFrame:(CGRect)aFrame;
 
 @end
 
@@ -27,22 +34,163 @@ static BCAchievementHandler *defaultHandler = nil;
 
 - (void)displayNotification:(BCAchievementNotificationView *)notification
 {
-    if (self.image != nil)
-    {
-        [notification setImage:self.image];
-    }
-    else
-    {
-        [notification setImage:nil];
-    }
-	
 	if(![_containerView superview])
 	{
 		[_topView addSubview:_containerView];
 	}
-    //[_topView addSubview:notification];
+	//[_topView addSubview:notification];
+	notification.frame = [self startFrameForFrame:notification.frame];
 	[_containerView addSubview:notification];
-    [notification animateIn];
+	//[notification animateIn];
+	// TODO: i think handler should handle animations, don't think it's the view's job to
+	[UIView animateWithDuration:kBCAchievementAnimeTime delay:0.0 options:0 
+					 animations:^{
+						 notification.frame = [self endFrameForFrame:notification.frame];
+					 } 
+					 completion:^(BOOL finished) {
+						 [UIView animateWithDuration:kBCAchievementAnimeTime delay:kBCAchievementDisplayTime options:0 
+										  animations:^{
+											  notification.frame = [self startFrameForFrame:notification.frame];
+										  } 
+										  completion:^(BOOL finished) {
+											  [_queue removeObjectAtIndex:0];
+											  if ([_queue count])
+											  {
+												  [self displayNotification:(BCAchievementNotificationView *)[_queue objectAtIndex:0]];
+											  }
+											  else
+												  [_containerView removeFromSuperview];
+										  }];
+					 }];
+}
+
+- (CGRect)rectForRect:(CGRect)rect withinRect:(CGRect)bigRect withMode:(UIViewContentMode)mode
+{
+	CGRect result = rect;
+	switch (mode)
+	{
+		case UIViewContentModeCenter:
+			result.origin.x = CGRectGetMidX(bigRect) - (rect.size.width / 2);
+			result.origin.y = CGRectGetMidY(bigRect) - (rect.size.height / 2);
+			break;
+		case UIViewContentModeBottom:
+			result.origin.x = CGRectGetMidX(bigRect) - (rect.size.width / 2);
+			result.origin.y = CGRectGetMaxY(bigRect) - (rect.size.height);
+			break;
+		case UIViewContentModeBottomLeft:			
+			result.origin.x = CGRectGetMinX(bigRect);
+			result.origin.y = CGRectGetMaxY(bigRect) - rect.size.height;
+			break;
+		case UIViewContentModeBottomRight:
+			result.origin.x = CGRectGetMaxX(bigRect) - rect.size.width;
+			result.origin.y = CGRectGetMaxY(bigRect) - rect.size.height;
+			break;
+		case UIViewContentModeLeft:
+			result.origin.x = CGRectGetMinX(bigRect);
+			result.origin.y = CGRectGetMidY(bigRect) - (rect.size.height / 2);
+			break;
+		case UIViewContentModeTop:
+			result.origin.x = CGRectGetMidX(bigRect) - (rect.size.width / 2);
+			result.origin.y = CGRectGetMinY(bigRect);
+			break;
+		case UIViewContentModeTopLeft:
+			result.origin.x = CGRectGetMinX(bigRect);
+			result.origin.y = CGRectGetMinY(bigRect);
+			break;
+		case UIViewContentModeTopRight:
+			result.origin.x = CGRectGetMaxX(bigRect) - rect.size.width;
+			result.origin.y = CGRectGetMinY(bigRect);
+			break;
+		case UIViewContentModeRight:
+			result.origin.x = CGRectGetMaxX(bigRect) - rect.size.width;
+			result.origin.y = CGRectGetMidY(bigRect) - (rect.size.height / 2);
+			break;
+		default:
+			break;
+	}
+	return result;
+}
+
+// off screen
+- (CGRect)startFrameForFrame:(CGRect)aFrame
+{
+	CGRect result = aFrame;
+	CGRect containerRect = [BCAchievementHandler containerRect];
+	result = [self rectForRect:result withinRect:containerRect withMode:self.viewDisplayMode];
+	switch (self.viewDisplayMode) {
+		case UIViewContentModeTop:
+		case UIViewContentModeTopLeft:
+		case UIViewContentModeTopRight:
+			result.origin.y -= (aFrame.size.height + kBCAchievementViewPadding);
+			break;
+		case UIViewContentModeBottom:
+		case UIViewContentModeBottomLeft:
+		case UIViewContentModeBottomRight:
+			result.origin.y += (aFrame.size.height + kBCAchievementViewPadding);
+			break;
+		case UIViewContentModeLeft:
+			result.origin.x -= aFrame.size.width;
+			break;
+		case UIViewContentModeRight:
+			result.origin.x += aFrame.size.width;
+			break;
+		default:
+			break;
+	}
+	// adjust for horizontal padding
+	switch (self.viewDisplayMode) {
+		case UIViewContentModeTopLeft:
+		case UIViewContentModeBottomLeft:
+		case UIViewContentModeLeft:
+			result.origin.x += kBCAchievementViewPadding;
+			break;
+		case UIViewContentModeTopRight:
+		case UIViewContentModeBottomRight:
+		case UIViewContentModeRight:
+			result.origin.x -= kBCAchievementViewPadding;
+			break;
+		default:
+			break;
+	}
+	return result;
+}
+
+// on screen
+- (CGRect)endFrameForFrame:(CGRect)aFrame
+{
+	CGRect result = aFrame;
+	CGRect containerRect = [BCAchievementHandler containerRect];
+	result = [self rectForRect:result withinRect:containerRect withMode:self.viewDisplayMode];
+	switch (self.viewDisplayMode) {
+		case UIViewContentModeTop:
+		case UIViewContentModeTopLeft:
+		case UIViewContentModeTopRight:
+			result.origin.y += kBCAchievementViewPadding; // padding from top of screen
+			break;
+		case UIViewContentModeBottom:
+		case UIViewContentModeBottomLeft:
+		case UIViewContentModeBottomRight:
+			result.origin.y -= kBCAchievementViewPadding;
+			break;
+		default:
+			break;
+	}
+	// adjust for horizontal padding
+	switch (self.viewDisplayMode) {
+		case UIViewContentModeTopLeft:
+		case UIViewContentModeBottomLeft:
+		case UIViewContentModeLeft:
+			result.origin.x += kBCAchievementViewPadding;
+			break;
+		case UIViewContentModeTopRight:
+		case UIViewContentModeBottomRight:
+		case UIViewContentModeRight:
+			result.origin.x -= kBCAchievementViewPadding;
+			break;
+		default:
+			break;
+	}
+	return result;
 }
 
 - (void)orientationChanged:(NSNotification *)notification
@@ -138,7 +286,9 @@ static BCAchievementHandler *defaultHandler = nil;
 @implementation BCAchievementHandler
 
 @synthesize image;
+@synthesize defaultBackgroundImage;
 @synthesize viewDisplayMode;
+@synthesize defaultViewSize;
 
 #pragma mark -
 
@@ -154,6 +304,7 @@ static BCAchievementHandler *defaultHandler = nil;
 	{
 		_topView = [[UIApplication sharedApplication] keyWindow];
 		self.viewDisplayMode = UIViewContentModeTop;
+		self.defaultViewSize = kBCAchievementDefaultSize;
 		
 		_containerView = [[UIView alloc] initWithFrame:[[UIScreen mainScreen] applicationFrame]];
 		_containerView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
@@ -163,6 +314,7 @@ static BCAchievementHandler *defaultHandler = nil;
 		
         _queue = [[NSMutableArray alloc] initWithCapacity:0];
         self.image = [UIImage imageNamed:@"gk-icon.png"];
+		self.defaultBackgroundImage = [[UIImage imageNamed:@"gk-notification.png"] stretchableImageWithLeftCapWidth:8.0f topCapHeight:0.0f];
 		
 		if (![UIDevice currentDevice].generatesDeviceOrientationNotifications) {
 			[[UIDevice currentDevice] beginGeneratingDeviceOrientationNotifications];
@@ -202,46 +354,41 @@ static BCAchievementHandler *defaultHandler = nil;
 
 #pragma mark -
 
+- (void)queueNotification:(BCAchievementNotificationView *)notification
+{
+	[_queue addObject:notification];
+	if([_queue count] == 1)
+		[self displayNotification:notification];
+}
+
 - (void)notifyAchievement:(GKAchievementDescription *)achievement
 {
-    BCAchievementNotificationView *notification = [[[BCAchievementNotificationView alloc] initWithAchievementDescription:achievement] autorelease];
-	notification.displayMode = self.viewDisplayMode;
-    notification.frame = [notification startFrame];
-    notification.handlerDelegate = self;
+	CGRect frame = CGRectMake(0, 0, self.defaultViewSize.width, self.defaultViewSize.height);
+    BCAchievementNotificationView *notification = [[[BCAchievementNotificationView alloc] initWithFrame:frame achievementDescription:achievement] autorelease];
+	((UIImageView *)notification.backgroundView).image = self.defaultBackgroundImage;
+//	notification.displayMode = self.viewDisplayMode;
+	//[notification resetFrameToStart];
 
-    [_queue addObject:notification];
-    if ([_queue count] == 1)
-    {
-        [self displayNotification:notification];
-    }
+	[self queueNotification:notification];
 }
 
 - (void)notifyAchievementTitle:(NSString *)title andMessage:(NSString *)message
 {
-    BCAchievementNotificationView *notification = [[[BCAchievementNotificationView alloc] initWithTitle:title andMessage:message] autorelease];
-	notification.displayMode = self.viewDisplayMode;
-    notification.frame = [notification startFrame];
-    notification.handlerDelegate = self;
-
-    [_queue addObject:notification];
-    if ([_queue count] == 1)
+	CGRect frame = CGRectMake(0, 0, self.defaultViewSize.width, self.defaultViewSize.height);
+    BCAchievementNotificationView *notification = [[[BCAchievementNotificationView alloc] initWithFrame:frame title:title message:message] autorelease];
+	((UIImageView *)notification.backgroundView).image = self.defaultBackgroundImage;
+	if (self.image != nil)
     {
-        [self displayNotification:notification];
+        [notification setImage:self.image];
     }
-}
-
-#pragma mark -
-#pragma mark BCAchievementHandlerDelegate implementation
-
-- (void)didHideAchievementNotification:(BCAchievementNotificationView *)notification
-{
-    [_queue removeObjectAtIndex:0];
-    if ([_queue count])
+    else
     {
-        [self displayNotification:(BCAchievementNotificationView *)[_queue objectAtIndex:0]];
+        [notification setImage:nil];
     }
-	else
-		[_containerView removeFromSuperview];
+//	notification.displayMode = self.viewDisplayMode;
+	//[notification resetFrameToStart];
+	
+	[self queueNotification:notification];
 }
 
 @end
