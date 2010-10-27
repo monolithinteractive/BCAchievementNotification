@@ -117,6 +117,7 @@ static BCAchievementNotificationCenter *defaultHandler = nil;
 	CGRect result = aFrame;
 	CGRect containerRect = [BCAchievementNotificationCenter containerRect];
 	result = [self rectForRect:result withinRect:containerRect withMode:self.viewDisplayMode];
+	result = CGRectIntegral(result);
 	switch (self.viewDisplayMode) {
 		case UIViewContentModeTop:
 		case UIViewContentModeTopLeft:
@@ -161,6 +162,7 @@ static BCAchievementNotificationCenter *defaultHandler = nil;
 	CGRect result = aFrame;
 	CGRect containerRect = [BCAchievementNotificationCenter containerRect];
 	result = [self rectForRect:result withinRect:containerRect withMode:self.viewDisplayMode];
+	result = CGRectIntegral(result);
 	switch (self.viewDisplayMode) {
 		case UIViewContentModeTop:
 		case UIViewContentModeTopLeft:
@@ -374,19 +376,17 @@ static BCAchievementNotificationCenter *defaultHandler = nil;
 	[self queueNotification:notification];
 }
 
-- (void)notifyWithTitle:(NSString *)title message:(NSString *)message
+- (void)notifyWithTitle:(NSString *)title message:(NSString *)message image:(UIImage *)anImage
 {
 	CGRect frame = CGRectMake(0, 0, self.defaultViewSize.width, self.defaultViewSize.height);
     UIView<BCAchievementViewProtocol> *notification = [[[viewClass alloc] initWithFrame:frame title:title message:message] autorelease];
 	((UIImageView *)[notification backgroundView]).image = self.defaultBackgroundImage;
-	if (self.image != nil)
-    {
+	if(anImage)
+		[notification setImage:anImage];
+	else if(self.image)
         [notification setImage:self.image];
-    }
     else
-    {
         [notification setImage:nil];
-    }
 //	notification.displayMode = self.viewDisplayMode;
 	//[notification resetFrameToStart];
 	

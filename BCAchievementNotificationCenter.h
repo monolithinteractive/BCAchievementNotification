@@ -74,6 +74,6 @@
  * @param title    The title of the achievement.
  * @param message  Description of the achievement.
  */
-- (void)notifyWithTitle:(NSString *)title message:(NSString *)message;
+- (void)notifyWithTitle:(NSString *)title message:(NSString *)message image:(UIImage *)anImage;
 
 @end
