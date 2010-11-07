@@ -314,6 +314,12 @@ static BCAchievementNotificationCenter *defaultHandler = nil;
 		_containerView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
 		_containerView.opaque = NO;
 		_containerView.backgroundColor = [UIColor clearColor];
+		
+		[_containerView setUserInteractionEnabled: NO];	
+		//defaults to YES where touches won't be passed to views below the achievementview (whose frame is = app window frame). 
+		//Setting to NO will pass touches through.
+		//there's still a little delay of event passing when the achievementview appears :[
+		
 		[self setupDefaultFrame];
 		
         _queue = [[NSMutableArray alloc] initWithCapacity:0];
